@@ -1,0 +1,58 @@
+{
+  "name": "radish-project-creator",
+  "version": "1.0.0",
+  "description": "一个基于 Node.js 与 TypeScript 的交互式 CLI 脚手架, 通过多级菜单选择编程语言与项目类型, 一键生成标准化的项目模板.",
+  "type": "module",
+  "main": "dist/index.js",
+  "bin": {
+    "radish-creator": "dist/index.js"
+  },
+  "files": [
+    "dist",
+    "templates"
+  ],
+  "engines": {
+    "node": ">=18"
+  },
+  "scripts": {
+    "build": "tsc -p tsconfig.json",
+    "dev": "tsx src/index.ts",
+    "start": "node dist/index.js",
+    "typecheck": "tsc -p tsconfig.test.json",
+    "test": "vitest run",
+    "test:watch": "vitest",
+    "lint": "biome check .",
+    "format": "biome format --write ."
+  },
+  "keywords": [
+    "cli",
+    "scaffold",
+    "generator",
+    "template",
+    "boilerplate",
+    "project-generator",
+    "interactive",
+    "create-project",
+    "starter",
+    "typescript"
+  ],
+  "author": "radishcoding-art",
+  "license": "ISC",
+  "devDependencies": {
+    "@biomejs/biome": "^2.5.2",
+    "@types/figlet": "^1.7.0",
+    "@types/node": "^26.1.0",
+    "@types/validate-npm-package-name": "^4.0.2",
+    "tsx": "^4.23.0",
+    "typescript": "^6.0.3",
+    "vitest": "^4.1.9"
+  },
+  "dependencies": {
+    "@clack/prompts": "^1.7.0",
+    "commander": "^15.0.0",
+    "figlet": "^1.11.0",
+    "gradient-string": "^3.0.0",
+    "picocolors": "^1.1.1",
+    "validate-npm-package-name": "^7.0.2"
+  }
+}
