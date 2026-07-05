@@ -78,4 +78,44 @@ describe("generateProject", () => {
     await expect(generateProject(ctx)).rejects.toThrow();
     expect(existsSync(ctx.targetDir)).toBe(false);
   });
+
+  it("按 meta.replacements 将字符串替换为项目名 (先长后短), 跳过二进制文件", async () => {
+    const tpl = path.join(workspace, "tpl-go");
+    await mkdir(tpl, { recursive: true });
+    await writeFile(path.join(tpl, "go.mod"), "module github.com/x/go-template\n");
+    await writeFile(
+      path.join(tpl, "main.go"),
+      'import "github.com/x/go-template/internal/a"\n// image: go-template:latest\n',
+    );
+    const binContent = Buffer.concat([Buffer.from("go-template"), Buffer.from([0x00])]);
+    await writeFile(path.join(tpl, "bin.dat"), binContent);
+
+    const template: Template = {
+      language: "go",
+      id: "api",
+      slug: "go/api",
+      dir: tpl,
+      meta: {
+        name: "x",
+        description: "y",
+        replacements: ["github.com/x/go-template", "go-template"],
+      },
+    };
+    const target = path.join(workspace, "out-go");
+    await generateProject({
+      projectName: "my-api",
+      targetDir: target,
+      template,
+      packageManager: "npm",
+      installDeps: false,
+    });
+
+    expect(await readFile(path.join(target, "go.mod"), "utf8")).toBe("module my-api\n");
+    const mainGo = await readFile(path.join(target, "main.go"), "utf8");
+    expect(mainGo).toContain('import "my-api/internal/a"');
+    expect(mainGo).toContain("image: my-api:latest");
+    expect(mainGo).not.toContain("go-template");
+    const bin = await readFile(path.join(target, "bin.dat"));
+    expect(bin.equals(binContent)).toBe(true);
+  });
 });

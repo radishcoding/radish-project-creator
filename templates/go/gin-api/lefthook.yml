@@ -1,0 +1,11 @@
+pre-commit:
+  parallel: true
+  commands:
+    fmt:
+      glob: "**/*.go"
+      run: gofumpt -l {staged_files}
+      fail_text: "运行 task fmt 后重试"
+    lint:
+      run: golangci-lint run ./...
+    test:
+      run: go test -short ./...

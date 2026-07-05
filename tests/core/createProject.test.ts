@@ -98,7 +98,7 @@ describe("createProject", () => {
       askProjectName: async () => "menu-app",
       selectLanguage: async (langs) => {
         languageSelected = true;
-        return langs[0] as string;
+        return langs.includes("typescript") ? "typescript" : (langs[0] as string);
       },
       selectTemplate: async (tpls) => {
         templateSelected = true;

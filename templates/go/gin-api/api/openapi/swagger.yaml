@@ -1,0 +1,47 @@
+basePath: /
+definitions:
+  response.Envelope:
+    properties:
+      code:
+        type: string
+      data: {}
+      message:
+        type: string
+      requestId:
+        type: string
+    type: object
+info:
+  contact: {}
+  description: 生产级 Go API 模板
+  title: go-template API
+  version: "1.0"
+paths:
+  /livez:
+    get:
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/response.Envelope'
+      summary: 存活探针
+      tags:
+      - health
+  /readyz:
+    get:
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/response.Envelope'
+        "503":
+          description: Service Unavailable
+          schema:
+            $ref: '#/definitions/response.Envelope'
+      summary: 就绪探针 (探测 DB/Redis)
+      tags:
+      - health
+swagger: "2.0"

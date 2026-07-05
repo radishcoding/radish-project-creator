@@ -1,0 +1,7 @@
+{
+  "name": "Gin REST API",
+  "description": "生产级 Go + Gin REST API: sqlc, pgx, Redis, JWT, OTel, Swagger, Docker",
+  "emoji": "🐹",
+  "tags": ["go", "gin", "api", "rest", "postgres"],
+  "replacements": ["github.com/radishcoding/go-template", "go-template"]
+}

@@ -14,6 +14,8 @@ export interface TemplateMeta {
   emoji?: string;
   /** 用于分类或检索的标签列表. */
   tags?: string[];
+  /** 生成时需在所有文本文件中替换为项目名的字符串列表, 按数组顺序应用 (应先列长串再列短串, 避免长串被短串破坏). */
+  replacements?: string[];
 }
 
 /** 单个项目模板的完整描述. */

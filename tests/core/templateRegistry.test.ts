@@ -104,4 +104,15 @@ describe("templateRegistry", () => {
     });
     expect(found?.meta.name).toBe("全量");
   });
+
+  it("解析 meta 的 replacements 字段并过滤非字符串", async () => {
+    await makeTemplate("go", "api", {
+      name: "API",
+      description: "d",
+      replacements: ["github.com/x/go-template", "go-template", 42],
+    } as object);
+    const templates = await loadTemplates(root);
+    const found = findTemplate(templates, "go/api");
+    expect(found?.meta.replacements).toEqual(["github.com/x/go-template", "go-template"]);
+  });
 });

@@ -1,0 +1,55 @@
+# .env.example — 环境变量示例
+#
+# 用法: 复制为 .env 后按需修改 (.env 已被 .gitignore 忽略, 不会入库).
+# 约定: 前缀 APP_, 嵌套配置键用下划线连接 (如 postgres.host -> APP_POSTGRES_HOST).
+# 优先级: 默认值 < configs/config.yaml < 环境变量 (下方值会覆盖前两者).
+# 完整可配置项见 configs/config.yaml. 注意: .env 不支持行内注释, 注释须独占一行.
+
+# ---------- 应用 ----------
+# 运行环境: development | production
+# (production 下关闭 Swagger, 并强制要求 APP_AUTH_JWT_SECRET 非默认值, 否则启动失败)
+APP_APP_ENV=development
+# HTTP 监听端口
+APP_APP_PORT=8000
+
+# ---------- 日志 ----------
+# 级别: debug | info | warn | error
+APP_LOG_LEVEL=info
+# 格式: json | console
+APP_LOG_FORMAT=json
+
+# ---------- PostgreSQL ----------
+# 主机 (容器内互联时改为服务名, 如 postgres)
+APP_POSTGRES_HOST=localhost
+APP_POSTGRES_PORT=5432
+APP_POSTGRES_USER=postgres
+# 密码 (生产务必替换)
+APP_POSTGRES_PASSWORD=postgres
+APP_POSTGRES_DB=app
+# SSL 模式: disable | require | verify-full ...
+APP_POSTGRES_SSLMODE=disable
+
+# ---------- Redis (缓存 + 分布式限流) ----------
+# 地址 host:port (容器内互联时改为 redis:6379)
+APP_REDIS_ADDR=localhost:6379
+# 密码 (无则留空)
+APP_REDIS_PASSWORD=
+APP_REDIS_DB=0
+
+# ---------- 认证 (JWT, HS256) ----------
+# 生产必须替换; production 环境下仍为此默认值会导致启动失败
+APP_AUTH_JWT_SECRET=change-me-in-production
+
+# ---------- 限流 (按客户端 IP) ----------
+# 每秒速率
+APP_RATELIMIT_RPS=100
+# 突发上限
+APP_RATELIMIT_BURST=200
+
+# ---------- 可观测性 (OpenTelemetry) ----------
+# 是否启用 Trace/Metrics 导出
+APP_OTEL_ENABLED=false
+# OTLP/gRPC collector 地址 (容器内互联时改为 otel-collector:4317)
+APP_OTEL_ENDPOINT=localhost:4317
+# 服务名 (显示在 Jaeger/Grafana)
+APP_OTEL_SERVICE_NAME=go-template

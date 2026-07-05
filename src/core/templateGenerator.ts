@@ -43,6 +43,7 @@ export async function generateProject(
     await removeMetaFile(tempDir);
     await renameDotfiles(tempDir);
     await patchPackageJson(tempDir, ctx.projectName);
+    await applyReplacements(tempDir, ctx.template.meta.replacements ?? [], ctx.projectName);
 
     hooks.onProgress?.("写入目标目录");
     await moveIntoPlace(tempDir, ctx.targetDir);
@@ -87,6 +88,48 @@ async function patchPackageJson(dir: string, projectName: string): Promise<void>
   const pkg = JSON.parse(await readFile(pkgPath, "utf8")) as Record<string, unknown>;
   pkg.name = projectName;
   await writeFile(pkgPath, `${JSON.stringify(pkg, null, 2)}\n`);
+}
+
+async function applyReplacements(
+  dir: string,
+  replacements: readonly string[],
+  projectName: string,
+): Promise<void> {
+  if (replacements.length === 0) {
+    return;
+  }
+  const entries = await readdir(dir, { withFileTypes: true });
+  for (const entry of entries) {
+    const full = path.join(dir, entry.name);
+    if (entry.isDirectory()) {
+      await applyReplacements(full, replacements, projectName);
+    } else if (entry.isFile()) {
+      await replaceInFile(full, replacements, projectName);
+    }
+  }
+}
+
+async function replaceInFile(
+  file: string,
+  replacements: readonly string[],
+  projectName: string,
+): Promise<void> {
+  const buffer = await readFile(file);
+  // 含 NUL 字节的文件视为二进制, 不做文本替换
+  if (buffer.includes(0)) {
+    return;
+  }
+  let content = buffer.toString("utf8");
+  let changed = false;
+  for (const from of replacements) {
+    if (from.length > 0 && content.includes(from)) {
+      content = content.split(from).join(projectName);
+      changed = true;
+    }
+  }
+  if (changed) {
+    await writeFile(file, content);
+  }
 }
 
 async function moveIntoPlace(tempDir: string, targetDir: string): Promise<void> {

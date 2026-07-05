@@ -2,7 +2,7 @@ import { confirm, isCancel, select, text } from "@clack/prompts";
 import { validateProjectName } from "../core/projectName.js";
 import { UserCancelledError } from "../runtime/errors.js";
 import type { DirConflictAction, PackageManager, Prompter, Template } from "../types.js";
-import { emoji } from "./theme.js";
+import { emoji, formatLanguage } from "./theme.js";
 
 /**
  * 收窄 clack 提示返回值, 若用户取消则抛出 UserCancelledError.
@@ -49,7 +49,7 @@ export class ClackPrompter implements Prompter {
         message: "选择编程语言",
         options: languages.map((language) => ({
           value: language,
-          label: language,
+          label: formatLanguage(language),
         })),
       }),
     );

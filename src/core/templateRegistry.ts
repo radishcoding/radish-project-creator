@@ -33,6 +33,9 @@ function parseMeta(raw: string, slug: string): TemplateMeta {
   if (Array.isArray(obj.tags)) {
     meta.tags = obj.tags.filter((t): t is string => typeof t === "string");
   }
+  if (Array.isArray(obj.replacements)) {
+    meta.replacements = obj.replacements.filter((r): r is string => typeof r === "string");
+  }
   return meta;
 }
 

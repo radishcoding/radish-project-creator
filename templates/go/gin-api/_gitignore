@@ -1,0 +1,38 @@
+# Binaries
+/bin/
+/tmp/
+*.exe
+*.exe~
+*.dll
+*.so
+*.dylib
+
+# Test & coverage
+*.test
+*.out
+coverage.*
+
+# Go workspace
+go.work
+go.work.sum
+
+# Env & secrets
+.env
+.env.local
+*.local.yaml
+
+# Editor / OS
+.idea/
+.vscode/
+.DS_Store
+
+# Air hot-reload
+/tmp/
+build-errors.log
+
+# swaggo generated (keep committed if desired; ignored by default)
+# api/openapi/
+
+# SDD scratch (briefs, reports, diffs, ledger)
+.superpowers/
+tmp/

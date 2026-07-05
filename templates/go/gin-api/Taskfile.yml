@@ -1,0 +1,64 @@
+version: "3"
+
+vars:
+  MODULE: github.com/radishcoding/go-template
+  BIN: bin/server
+
+tasks:
+  default:
+    cmds: [task --list]
+  tidy:
+    cmds: [go mod tidy]
+  fmt:
+    cmds: [gofumpt -w .]
+  lint:
+    cmds: [golangci-lint run ./...]
+  test:
+    desc: 单元测试 (跳过集成)
+    cmds: ["go test -short -race ./..."]
+  test:integration:
+    desc: 全量测试 (含 testcontainers)
+    cmds: ["go test -race ./..."]
+  build:
+    cmds: ["go build -o {{.BIN}} ./cmd/server"]
+  run:
+    cmds: ["go run ./cmd/server"]
+  swag:generate:
+    desc: 生成 OpenAPI 文档到 api/openapi/
+    cmds: ["swag init -g cmd/server/main.go -o api/openapi"]
+  sqlc:generate:
+    desc: 运行 sqlc 生成 internal/repository/db 下的类型安全查询代码
+    cmds: [sqlc generate]
+  docker:build:
+    cmds: ["docker build -f build/Dockerfile -t go-template:local ."]
+  compose:up:
+    dir: deployments
+    cmds: ["docker compose up -d --build"]
+  compose:down:
+    dir: deployments
+    cmds: ["docker compose down -v"]
+  migrate:up:
+    cmds:
+      - 'migrate -path db/migrations -database "postgres://postgres:postgres@localhost:5432/app?sslmode=disable" up'
+  migrate:down:
+    cmds:
+      - 'migrate -path db/migrations -database "postgres://postgres:postgres@localhost:5432/app?sslmode=disable" down 1'
+  migrate:create:
+    cmds:
+      - "migrate create -ext sql -dir db/migrations -seq {{.CLI_ARGS}}"
+  tools:
+    desc: 安装 Go 命令行工具
+    cmds:
+      - go install mvdan.cc/gofumpt@latest
+      - go install github.com/sqlc-dev/sqlc/cmd/sqlc@latest
+      - go install github.com/swaggo/swag/cmd/swag@latest
+      - go install github.com/air-verse/air@latest
+      - go install -tags 'postgres' github.com/golang-migrate/migrate/v4/cmd/migrate@latest
+  dev:
+    desc: 热重载开发
+    cmds: [air]
+  ci:
+    cmds:
+      - task: lint
+      - task: test:integration
+      - task: build

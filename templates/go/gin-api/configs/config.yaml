@@ -1,0 +1,40 @@
+app:
+  name: go-template
+  env: development
+  port: 8000
+  api_prefix: /api/v1
+server:
+  read_timeout: 15s
+  write_timeout: 15s
+  shutdown_timeout: 10s
+  body_limit_bytes: 1048576
+  request_timeout: 30s
+  cors_origins: ["*"]
+log:
+  level: info
+  format: json
+postgres:
+  host: localhost
+  port: 5432
+  user: postgres
+  password: postgres
+  db: app
+  sslmode: disable
+  pool_size: 10
+redis:
+  addr: localhost:6379
+  password: ""
+  db: 0
+  pool_size: 10
+auth:
+  jwt_secret: change-me-in-production
+  issuer: go-template
+  ttl: 24h
+ratelimit:
+  rps: 100
+  burst: 200
+otel:
+  enabled: false
+  endpoint: localhost:4317
+  service_name: go-template
+  service_version: dev
