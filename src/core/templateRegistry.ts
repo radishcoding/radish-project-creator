@@ -1,3 +1,4 @@
+import { existsSync } from "node:fs";
 import { readdir, readFile, stat } from "node:fs/promises";
 import path from "node:path";
 import { TemplateError } from "../runtime/errors.js";
@@ -74,7 +75,8 @@ export async function loadTemplates(root: string): Promise<Template[]> {
         throw new TemplateError(`模板 ${slug} 缺少 meta.json`);
       }
 
-      templates.push({ language, id, slug, dir, meta: parseMeta(raw, slug) });
+      const hasPackageJson = existsSync(path.join(dir, "package.json"));
+      templates.push({ language, id, slug, dir, hasPackageJson, meta: parseMeta(raw, slug) });
     }
   }
 

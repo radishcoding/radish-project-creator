@@ -1,0 +1,8 @@
+# 后端 API 基地址
+VITE_API_BASE_URL=http://localhost:8080
+# 运行环境: development | staging | production
+VITE_APP_ENV=development
+# Sentry DSN (可选, 留空则不启用)
+VITE_SENTRY_DSN=
+# 是否启用 MSW 开发态 mock: true | false
+VITE_ENABLE_MSW=false

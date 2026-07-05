@@ -1,0 +1,39 @@
+<!doctype html>
+<html lang="zh-CN">
+  <head>
+    <meta charset="UTF-8" />
+    <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>萝卜-前端模板</title>
+    <script>
+      // 在首帧渲染前同步应用主题, 避免深浅色切换闪烁 (FOUC).
+      // 逻辑须与 src/components/theme-provider.tsx 保持一致;
+      // 若改动 storageKey 或 defaultTheme, 需同步此处.
+      ;(function () {
+        try {
+          var storageKey = "theme"
+          var defaultTheme = "system"
+          var stored = localStorage.getItem(storageKey)
+          var theme =
+            stored === "light" || stored === "dark" || stored === "system"
+              ? stored
+              : defaultTheme
+          var prefersDark = window.matchMedia(
+            "(prefers-color-scheme: dark)"
+          ).matches
+          var resolved =
+            theme === "system" ? (prefersDark ? "dark" : "light") : theme
+          var root = document.documentElement
+          root.classList.add(resolved)
+          root.style.colorScheme = resolved
+        } catch (error) {
+          // 存储/matchMedia 不可用时静默降级, 由 React 端兜底
+        }
+      })()
+    </script>
+  </head>
+  <body>
+    <div id="root"></div>
+    <script type="module" src="/src/main.tsx"></script>
+  </body>
+</html>

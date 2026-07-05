@@ -1,0 +1,7 @@
+{
+  "name": "React + Vite 前端",
+  "description": "生产级 React 19 + Vite + TS 前端: React Query, Router, JWT 认证, zustand, i18n, shadcn, MSW, Playwright",
+  "emoji": "⚛️",
+  "tags": ["react", "vite", "typescript", "frontend", "spa"],
+  "replacements": ["radish-frontend-template"]
+}

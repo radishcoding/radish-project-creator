@@ -1,0 +1,16 @@
+# 统一文本文件行尾为 LF, 跨平台一致 (匹配 Prettier endOfLine: lf, 避免 Windows CRLF 触发 format:check 失败)
+* text=auto eol=lf
+
+# 二进制文件不做行尾/编码转换
+*.png binary
+*.jpg binary
+*.jpeg binary
+*.gif binary
+*.ico binary
+*.webp binary
+*.woff binary
+*.woff2 binary
+*.ttf binary
+*.eot binary
+*.otf binary
+*.node binary

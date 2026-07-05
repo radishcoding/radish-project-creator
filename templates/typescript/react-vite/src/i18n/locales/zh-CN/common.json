@@ -1,0 +1,10 @@
+{
+  "confirm": "确认",
+  "cancel": "取消",
+  "loading": "加载中",
+  "error": "出错了",
+  "themeToggle": "切换主题",
+  "themeLight": "亮色",
+  "themeDark": "暗色",
+  "themeSystem": "跟随系统"
+}

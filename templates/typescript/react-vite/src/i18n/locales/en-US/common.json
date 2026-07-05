@@ -1,0 +1,10 @@
+{
+  "confirm": "Confirm",
+  "cancel": "Cancel",
+  "loading": "Loading",
+  "error": "Something went wrong",
+  "themeToggle": "Toggle theme",
+  "themeLight": "Light",
+  "themeDark": "Dark",
+  "themeSystem": "System"
+}

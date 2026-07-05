@@ -28,6 +28,8 @@ export interface Template {
   slug: string;
   /** 模板文件所在目录路径. */
   dir: string;
+  /** 模板根目录是否含 package.json, 即是否为 npm 生态项目; 决定后续步骤是否给出包管理器命令. */
+  hasPackageJson: boolean;
   /** 模板元数据. */
   meta: TemplateMeta;
 }

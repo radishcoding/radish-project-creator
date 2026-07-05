@@ -29,6 +29,7 @@ function makeContext(targetDir: string): ProjectContext {
     id: "node-basic",
     slug: "typescript/node-basic",
     dir: templateDir,
+    hasPackageJson: true,
     meta: { name: "x", description: "y" },
   };
   return {
@@ -95,6 +96,7 @@ describe("generateProject", () => {
       id: "api",
       slug: "go/api",
       dir: tpl,
+      hasPackageJson: false,
       meta: {
         name: "x",
         description: "y",

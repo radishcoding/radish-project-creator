@@ -10,4 +10,20 @@ describe("内置模板", () => {
     expect(tpl?.meta.name.length).toBeGreaterThan(0);
     expect(tpl?.meta.description.length).toBeGreaterThan(0);
   });
+
+  it("按模板是否含 package.json 标注 hasPackageJson", async () => {
+    const templates = await loadTemplates(resolveTemplatesRoot());
+    expect(findTemplate(templates, "typescript/node-basic")?.hasPackageJson).toBe(true);
+    expect(findTemplate(templates, "go/gin-api")?.hasPackageJson).toBe(false);
+  });
+
+  it("包含 typescript/react-vite 且为 Node 模板, replacements 指向模板名", async () => {
+    const templates = await loadTemplates(resolveTemplatesRoot());
+    const tpl = findTemplate(templates, "typescript/react-vite");
+    expect(tpl).toBeDefined();
+    expect(tpl?.meta.name.length).toBeGreaterThan(0);
+    expect(tpl?.meta.description.length).toBeGreaterThan(0);
+    expect(tpl?.hasPackageJson).toBe(true);
+    expect(tpl?.meta.replacements).toContain("radish-frontend-template");
+  });
 });

@@ -11,6 +11,12 @@ import type { ProjectContext } from "../types.js";
 export function buildNextSteps(ctx: ProjectContext, cwd: string = process.cwd()): string[] {
   const rel = path.relative(cwd, ctx.targetDir) || ".";
   const steps: string[] = [`cd ${rel}`];
+  // 仅 npm 生态项目 (含 package.json) 才给出包管理器命令; 其余语言的构建与运行方式各异,
+  // 无法在此臆断, 转而指向模板自带的 README.
+  if (!ctx.template.hasPackageJson) {
+    steps.push("# 构建与运行详见 README.md");
+    return steps;
+  }
   if (!ctx.installDeps) {
     steps.push(installCommand(ctx.packageManager));
   }
