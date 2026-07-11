@@ -6,10 +6,11 @@ import (
 	"testing"
 
 	"github.com/gin-gonic/gin"
-	"github.com/radishcoding/go-template/internal/server/requestid"
 	"github.com/stretchr/testify/require"
 	"go.uber.org/zap"
 	"go.uber.org/zap/zaptest/observer"
+
+	"github.com/radishcoding/go-template/internal/server/requestid"
 )
 
 func TestAccessLogEmitsEntry(t *testing.T) {

@@ -17,7 +17,11 @@ describe("refreshAccessToken", () => {
   })
 
   it("请求刷新端点并写回新令牌", async () => {
-    mock.onPost("/auth/refresh").reply(200, { accessToken: "fresh" })
+    mock.onPost("/auth/refresh").reply(200, {
+      code: "ok",
+      message: "success",
+      data: { accessToken: "fresh" },
+    })
     const token = await refreshAccessToken()
     expect(token).toBe("fresh")
     expect(tokenStore.getAccessToken()).toBe("fresh")
@@ -27,7 +31,10 @@ describe("refreshAccessToken", () => {
     let calls = 0
     mock.onPost("/auth/refresh").reply(() => {
       calls += 1
-      return [200, { accessToken: "once" }]
+      return [
+        200,
+        { code: "ok", message: "success", data: { accessToken: "once" } },
+      ]
     })
     const [a, b] = await Promise.all([
       refreshAccessToken(),

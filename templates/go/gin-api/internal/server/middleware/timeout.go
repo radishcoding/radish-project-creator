@@ -6,6 +6,7 @@ import (
 
 	"github.com/gin-contrib/timeout"
 	"github.com/gin-gonic/gin"
+
 	"github.com/radishcoding/go-template/internal/server/response"
 )
 

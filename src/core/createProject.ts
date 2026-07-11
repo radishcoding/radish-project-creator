@@ -1,6 +1,7 @@
 import { TemplateError, UserCancelledError, ValidationError } from "../runtime/errors.js";
-import type { CliOptions, ProjectContext, Prompter, Template } from "../types.js";
+import type { CliOptions, PostGenerateTask, ProjectContext, Prompter, Template } from "../types.js";
 import { resolvePackageManager } from "./packageManager.js";
+import { runPostGenerateTask } from "./postGenerate.js";
 import { validateProjectName } from "./projectName.js";
 import { isDirUsable, resolveTargetDir } from "./targetDir.js";
 import { generateProject } from "./templateGenerator.js";
@@ -30,6 +31,10 @@ export interface CreateProjectDeps {
   registerTempDir?: (dir: string) => (() => void) | undefined;
   /** 依赖安装函数; 传入时 installDeps 为真才调用. */
   install?: (ctx: ProjectContext) => Promise<void>;
+  /** 执行单条生成后任务的函数; 注入以便测试替换, 缺省使用真实 spawn 实现. */
+  runPostGenerate?: (task: PostGenerateTask, cwd: string) => Promise<void>;
+  /** 非致命告警回调 (如生成后任务失败); 用于向用户提示但不中断流程. */
+  onWarn?: (message: string) => void;
 }
 
 /**
@@ -71,8 +76,10 @@ export async function createProject(
 
   const template = await resolveTemplate(options, templates, deps.prompter);
   const packageManager = resolvePackageManager(options.pm);
-  const installDeps =
-    options.install ?? (options.yes ? true : await deps.prompter.confirmInstall(packageManager));
+  // 非 Node 项目 (无 package.json) 没有 npm 依赖可装, 跳过安装决策与相应提问, 恒不安装.
+  const installDeps = template.hasPackageJson
+    ? (options.install ?? (options.yes ? true : await deps.prompter.confirmInstall(packageManager)))
+    : false;
 
   const ctx: ProjectContext = {
     projectName,
@@ -87,11 +94,34 @@ export async function createProject(
     onProgress: (msg) => deps.onProgress?.(msg),
   });
 
+  await runPostGenerateTasks(ctx, deps);
+
   if (installDeps && deps.install) {
     await deps.install(ctx);
   }
 
   return ctx;
+}
+
+/**
+ * 按序执行模板声明的生成后任务 (如格式化).
+ * 尽力而为: 项目在此前已原子写入且有效, 任一任务失败仅告警, 不回滚也不中断.
+ * @param ctx 已落盘的项目上下文.
+ * @param deps 依赖注入集合.
+ */
+async function runPostGenerateTasks(ctx: ProjectContext, deps: CreateProjectDeps): Promise<void> {
+  const tasks = ctx.template.meta.postGenerate ?? [];
+  const run = deps.runPostGenerate ?? runPostGenerateTask;
+  for (const task of tasks) {
+    const label = task.description ?? task.command.join(" ");
+    deps.onProgress?.(`执行生成后任务: ${label}`);
+    try {
+      await run(task, ctx.targetDir);
+    } catch (error) {
+      const reason = error instanceof Error ? error.message : String(error);
+      deps.onWarn?.(`生成后任务失败, 已跳过 (${label}): ${reason}`);
+    }
+  }
 }
 
 async function resolveProjectName(

@@ -2,7 +2,7 @@ import { existsSync } from "node:fs";
 import { readdir, readFile, stat } from "node:fs/promises";
 import path from "node:path";
 import { TemplateError } from "../runtime/errors.js";
-import type { Template, TemplateMeta } from "../types.js";
+import type { PostGenerateTask, Template, TemplateMeta } from "../types.js";
 
 async function isDirectory(target: string): Promise<boolean> {
   try {
@@ -37,7 +37,43 @@ function parseMeta(raw: string, slug: string): TemplateMeta {
   if (Array.isArray(obj.replacements)) {
     meta.replacements = obj.replacements.filter((r): r is string => typeof r === "string");
   }
+  const postGenerate = parsePostGenerate(obj.postGenerate);
+  if (postGenerate.length > 0) {
+    meta.postGenerate = postGenerate;
+  }
   return meta;
+}
+
+/**
+ * 解析 meta.json 的 postGenerate 字段为规范化的任务列表.
+ * 仅保留 command 为非空字符串数组的项; 非法项被静默丢弃, 避免坏配置阻断生成.
+ * @param raw meta.json 中 postGenerate 字段的原始值.
+ * @returns 校验通过的生成后任务列表.
+ */
+function parsePostGenerate(raw: unknown): PostGenerateTask[] {
+  if (!Array.isArray(raw)) {
+    return [];
+  }
+  const tasks: PostGenerateTask[] = [];
+  for (const item of raw) {
+    if (typeof item !== "object" || item === null) {
+      continue;
+    }
+    const record = item as Record<string, unknown>;
+    if (!Array.isArray(record.command)) {
+      continue;
+    }
+    const command = record.command.filter((part): part is string => typeof part === "string");
+    if (command.length === 0) {
+      continue;
+    }
+    const task: PostGenerateTask = { command };
+    if (typeof record.description === "string") {
+      task.description = record.description;
+    }
+    tasks.push(task);
+  }
+  return tasks;
 }
 
 /**

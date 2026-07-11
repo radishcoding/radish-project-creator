@@ -18,8 +18,8 @@ describe("auth endpoints", () => {
 
   it("login 命中 /auth/login 并返回解包后的数据", async () => {
     mock.onPost("/auth/login").reply(200, {
-      code: 0,
-      message: "ok",
+      code: "ok",
+      message: "success",
       data: { accessToken: "a", user: { id: 1, name: "萝卜" } },
     })
     const result = await login({ username: "u", password: "p" })
@@ -29,8 +29,8 @@ describe("auth endpoints", () => {
 
   it("getCurrentUser 命中 /auth/me", async () => {
     mock.onGet("/auth/me").reply(200, {
-      code: 0,
-      message: "ok",
+      code: "ok",
+      message: "success",
       data: { id: 2, name: "阿卜" },
     })
     const user = await getCurrentUser()

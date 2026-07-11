@@ -5,7 +5,7 @@ import path from "node:path";
 import { afterEach, beforeEach, describe, expect, it } from "vitest";
 import { resolveTemplatesRoot } from "../../src/constants.js";
 import { createProject } from "../../src/core/createProject.js";
-import type { Prompter, Template } from "../../src/types.js";
+import type { PostGenerateTask, Prompter, Template } from "../../src/types.js";
 
 let cwd: string;
 
@@ -89,6 +89,79 @@ describe("createProject", () => {
       },
     );
     expect(installed).toBe(true);
+  });
+
+  it("非 Node 模板 (无 package.json) 跳过安装决策与提问, 恒不安装", async () => {
+    let confirmCalled = false;
+    let installCalled = false;
+    const prompter: Prompter = {
+      ...stub,
+      confirmInstall: async () => {
+        confirmCalled = true;
+        return true;
+      },
+    };
+
+    const ctx = await createProject(
+      { template: "go/gin-api" },
+      {
+        prompter,
+        templatesRoot: resolveTemplatesRoot(),
+        cwd,
+        nameArg: "server",
+        install: async () => {
+          installCalled = true;
+        },
+      },
+    );
+
+    expect(ctx.installDeps).toBe(false);
+    expect(confirmCalled).toBe(false);
+    expect(installCalled).toBe(false);
+  });
+
+  it("生成后按模板声明执行 postGenerate 任务, 传入项目目录", async () => {
+    const calls: Array<{ task: PostGenerateTask; dir: string }> = [];
+    const ctx = await createProject(
+      { template: "go/gin-api" },
+      {
+        prompter: stub,
+        templatesRoot: resolveTemplatesRoot(),
+        cwd,
+        nameArg: "server",
+        runPostGenerate: async (task, dir) => {
+          calls.push({ task, dir });
+        },
+      },
+    );
+
+    expect(calls.length).toBeGreaterThan(0);
+    expect(calls[0]?.task.command).toEqual(["gofmt", "-w", "."]);
+    expect(calls[0]?.dir).toBe(path.resolve(cwd, "server"));
+    expect(ctx.projectName).toBe("server");
+  });
+
+  it("postGenerate 失败时不中断生成, 仅触发 onWarn", async () => {
+    let warned = "";
+    const ctx = await createProject(
+      { template: "go/gin-api" },
+      {
+        prompter: stub,
+        templatesRoot: resolveTemplatesRoot(),
+        cwd,
+        nameArg: "server",
+        runPostGenerate: async () => {
+          throw new Error("boom");
+        },
+        onWarn: (message) => {
+          warned = message;
+        },
+      },
+    );
+
+    expect(ctx.projectName).toBe("server");
+    expect(existsSync(path.join(ctx.targetDir, "go.mod"))).toBe(true);
+    expect(warned).toContain("boom");
   });
 
   it("无 --template 时始终走选语言与选模板 (即使各只有一个选项)", async () => {

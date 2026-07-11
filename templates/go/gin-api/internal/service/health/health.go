@@ -11,6 +11,7 @@ type Pinger interface {
 // PingFunc 将函数适配为 Pinger, 便于包装非标准签名的客户端 (如 redis).
 type PingFunc func(ctx context.Context) error
 
+// Ping 调用被适配的函数, 实现 Pinger 接口.
 func (f PingFunc) Ping(ctx context.Context) error { return f(ctx) }
 
 // Service 持有一组命名依赖并汇总其健康状态.
@@ -18,6 +19,7 @@ type Service struct {
 	deps map[string]Pinger
 }
 
+// New 用给定的命名依赖构造一个 Service.
 func New(deps map[string]Pinger) *Service { return &Service{deps: deps} }
 
 // Liveness 表示进程存活, 恒为 true.

@@ -171,6 +171,12 @@ apiClient.get(env.VITE_API_BASE_URL + "/ping")
 
 `@/api` 导出已挂拦截器的 `apiClient`. 拦截器自动注入令牌与 traceId, 解包 `ApiResponse<T>`, 把错误规范化为 `AppError`, 并在 401 时静默刷新令牌后重放请求. 在 `src/api/endpoints/` 下写类型化端点:
 
+> `ApiResponse<T>` 与后端 `go/gin-api` 的 `response.Envelope` 对齐: `{ code, message, data, requestId }`, `code` 为语义字符串 (成功恒为 `"ok"`, 失败如 `invalid_argument` / `unauthorized`). 若对接的后端信封不同, 改 `src/api/types.ts` 与 `src/api/interceptors.ts` 的 `SUCCESS_CODES` 即可.
+
+> **单源架构 (无 CORS)**: `VITE_API_BASE_URL` 默认相对路径 `/api/v1`, 各环境共用同一构建产物. 开发由 `vite.config.ts` 的 dev proxy 转发到 `http://localhost:8000` (浏览器同源); 生产由 `Dockerfile` + `Caddyfile` 让 Caddy 同源服务静态并反代 `/api/v1` (编排示例见 `deploy/docker-compose.yml`). 需跨源部署 (前后端分域) 时, 把 baseURL 改为 `http(s)://` 绝对地址, 并在后端 `configs/config.yaml` 的 `cors_origins` 填具体源.
+
+> **契约集成测试**: `npm run test:integration` 用真实拦截器栈打真实运行的后端 (默认 `http://localhost:8000`), 校验信封解包/错误映射/404; 后端未起时自动跳过, 不影响 `npm test`.
+
 ```ts
 import { apiClient } from "@/api"
 

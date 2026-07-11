@@ -1,4 +1,5 @@
 import { bareClient } from "@/api/client"
+import type { ApiResponse } from "@/api/types"
 import { tokenStore } from "@/auth/token-store"
 
 /** 刷新端点返回的令牌载荷. */
@@ -10,8 +11,10 @@ let pending: Promise<string> | null = null
 
 async function doRefresh(): Promise<string> {
   // 后端凭 httpOnly cookie 换发新 access token, 无需在请求体携带 refresh token.
-  const response = await bareClient.post<RefreshResult>("/auth/refresh")
-  const accessToken = response.data.accessToken
+  // bareClient 无响应拦截器 (避免刷新递归), 故在此手动解包后端统一信封.
+  const response =
+    await bareClient.post<ApiResponse<RefreshResult>>("/auth/refresh")
+  const accessToken = response.data.data.accessToken
   tokenStore.setAccessToken(accessToken)
   return accessToken
 }

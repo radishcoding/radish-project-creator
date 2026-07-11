@@ -11,9 +11,10 @@ import (
 
 	"github.com/gin-gonic/gin"
 	"github.com/jackc/pgx/v5/pgxpool"
-	"github.com/radishcoding/go-template/internal/config"
 	"github.com/redis/go-redis/v9"
 	"go.uber.org/zap"
+
+	"github.com/radishcoding/go-template/internal/config"
 )
 
 // App 持有全部运行时依赖, 负责生命周期管理.

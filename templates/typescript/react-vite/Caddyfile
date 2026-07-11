@@ -1,0 +1,16 @@
+# 单源边缘: Caddy 同时服务 SPA 静态资源与后端 API, 浏览器视角零跨域.
+:80 {
+	encode zstd gzip
+
+	# API: 反代到 Go 后端 (compose 服务名 go-api). 用 handle 不剥前缀, 保留 /api/v1.
+	handle /api/v1/* {
+		reverse_proxy go-api:8000
+	}
+
+	# SPA: 静态资源 + 前端路由回退到 index.html.
+	handle {
+		root * /srv
+		try_files {path} /index.html
+		file_server
+	}
+}

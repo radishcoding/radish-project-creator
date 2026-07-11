@@ -3,7 +3,7 @@ import { parseEnv } from "@/config/env"
 describe("parseEnv", () => {
   it("缺省时应用默认值", () => {
     const env = parseEnv({})
-    expect(env.VITE_API_BASE_URL).toBe("http://localhost:8080")
+    expect(env.VITE_API_BASE_URL).toBe("/api/v1")
     expect(env.VITE_APP_ENV).toBe("development")
     expect(env.VITE_ENABLE_MSW).toBe(false)
   })

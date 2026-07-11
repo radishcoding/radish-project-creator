@@ -5,12 +5,13 @@ import (
 	"testing"
 	"time"
 
-	"github.com/radishcoding/go-template/internal/config"
-	"github.com/radishcoding/go-template/internal/platform/database"
 	"github.com/stretchr/testify/require"
 	"github.com/testcontainers/testcontainers-go"
 	tcpostgres "github.com/testcontainers/testcontainers-go/modules/postgres"
 	"github.com/testcontainers/testcontainers-go/wait"
+
+	"github.com/radishcoding/go-template/internal/config"
+	"github.com/radishcoding/go-template/internal/platform/database"
 )
 
 func TestHealthRepoPing(t *testing.T) {

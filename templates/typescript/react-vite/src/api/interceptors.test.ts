@@ -40,7 +40,7 @@ describe("attachInterceptors", () => {
     let seen: string | undefined
     mock.onGet("/ping").reply((config) => {
       seen = config.headers?.Authorization as string | undefined
-      return [200, { code: 0, message: "ok", data: "pong" }]
+      return [200, { code: "ok", message: "success", data: "pong" }]
     })
     const res = await instance.get("/ping")
     expect(seen).toBe("Bearer tkn")
@@ -51,7 +51,9 @@ describe("attachInterceptors", () => {
   it("解包 ApiResponse 的 data 字段", async () => {
     const instance = makeInstance()
     const mock = new AxiosMockAdapter(instance)
-    mock.onGet("/u").reply(200, { code: 0, message: "ok", data: { id: 7 } })
+    mock
+      .onGet("/u")
+      .reply(200, { code: "ok", message: "success", data: { id: 7 } })
     const res = await instance.get("/u")
     expect(res.data).toEqual({ id: 7 })
     mock.restore()
@@ -60,7 +62,9 @@ describe("attachInterceptors", () => {
   it("业务错误码抛出 AppError(business)", async () => {
     const instance = makeInstance()
     const mock = new AxiosMockAdapter(instance)
-    mock.onGet("/b").reply(200, { code: 1001, message: "余额不足", data: null })
+    mock
+      .onGet("/b")
+      .reply(200, { code: "invalid_argument", message: "余额不足", data: null })
     await expect(instance.get("/b")).rejects.toMatchObject({
       name: "AppError",
       code: "business",
@@ -74,10 +78,14 @@ describe("attachInterceptors", () => {
     const mock = new AxiosMockAdapter(instance)
     const bareMock = new AxiosMockAdapter(bareClient) // refreshAccessToken 走 bareClient
     mock.onGet("/secure").replyOnce(401)
-    bareMock.onPost("/auth/refresh").reply(200, { accessToken: "new-token" })
+    bareMock.onPost("/auth/refresh").reply(200, {
+      code: "ok",
+      message: "success",
+      data: { accessToken: "new-token" },
+    })
     mock.onGet("/secure").reply((config) => {
       expect(config.headers?.Authorization).toBe("Bearer new-token")
-      return [200, { code: 0, message: "ok", data: "secret" }]
+      return [200, { code: "ok", message: "success", data: "secret" }]
     })
     const res = await instance.get("/secure")
     expect(res.data).toBe("secret")
@@ -89,7 +97,9 @@ describe("attachInterceptors", () => {
   it("HTTP 500 归一化为 AppError(server)", async () => {
     const instance = makeInstance()
     const mock = new AxiosMockAdapter(instance)
-    mock.onGet("/e").reply(500, { code: 500, message: "boom", data: null })
+    mock
+      .onGet("/e")
+      .reply(500, { code: "internal_error", message: "boom", data: null })
     await expect(instance.get("/e")).rejects.toMatchObject({
       code: "server",
       status: 500,

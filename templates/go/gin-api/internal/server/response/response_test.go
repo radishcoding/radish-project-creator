@@ -7,9 +7,10 @@ import (
 	"testing"
 
 	"github.com/gin-gonic/gin"
+	"github.com/stretchr/testify/require"
+
 	"github.com/radishcoding/go-template/internal/server/requestid"
 	"github.com/radishcoding/go-template/pkg/apperror"
-	"github.com/stretchr/testify/require"
 )
 
 func run(h gin.HandlerFunc) *httptest.ResponseRecorder {
@@ -32,7 +33,7 @@ func TestSuccessEnvelope(t *testing.T) {
 }
 
 func TestWrapMapsAppError(t *testing.T) {
-	w := run(Wrap(func(c *gin.Context) error { return apperror.NewNotFound("gone") }))
+	w := run(Wrap(func(_ *gin.Context) error { return apperror.NewNotFound("gone") }))
 	require.Equal(t, http.StatusNotFound, w.Code)
 	var e Envelope
 	require.NoError(t, json.Unmarshal(w.Body.Bytes(), &e))

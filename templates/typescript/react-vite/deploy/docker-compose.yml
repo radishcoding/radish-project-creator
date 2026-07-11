@@ -1,0 +1,62 @@
+# 单源生产编排示例: 仅 web (Caddy) 对外暴露, 静态与 /api/v1 同源, 全链路无 CORS.
+# go-api 的 build.context 指向后端项目 (此处假设与前端同级、目录名为 server), 按实际调整.
+# 启动次序靠 healthcheck + condition: service_healthy 保证 (否则首次 initdb 期间下游会抢跑失败).
+services:
+  web:
+    build:
+      context: ..
+      dockerfile: Dockerfile
+    ports:
+      - "8080:80" # 唯一对外端口; 浏览器访问 http://localhost:8080
+    depends_on:
+      go-api:
+        condition: service_healthy
+    restart: unless-stopped
+
+  go-api:
+    build:
+      context: ../../server
+      dockerfile: build/Dockerfile
+    environment:
+      APP_POSTGRES_HOST: postgres
+      APP_REDIS_ADDR: redis:6379
+    expose:
+      - "8000" # 仅内网可达, 不对外暴露
+    depends_on:
+      postgres:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+    # 复用镜像内置的 healthcheck 子命令 (探本地 /livez); distroless 无 shell, 用 exec 形式.
+    healthcheck:
+      test: ["CMD", "/server", "healthcheck"]
+      interval: 5s
+      timeout: 3s
+      retries: 10
+      start_period: 5s
+    restart: unless-stopped
+
+  postgres:
+    image: postgres:16-alpine
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres
+      POSTGRES_DB: app
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U postgres -d app"]
+      interval: 3s
+      timeout: 3s
+      retries: 10
+
+  redis:
+    image: redis:7-alpine
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 3s
+      timeout: 3s
+      retries: 10
+
+volumes:
+  pgdata:

@@ -8,9 +8,10 @@ import (
 	"testing"
 
 	"github.com/gin-gonic/gin"
+	"github.com/stretchr/testify/require"
+
 	"github.com/radishcoding/go-template/internal/server/requestid"
 	"github.com/radishcoding/go-template/internal/service/health"
-	"github.com/stretchr/testify/require"
 )
 
 func newEngine(svc *health.Service) *gin.Engine {

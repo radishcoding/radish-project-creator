@@ -1,5 +1,6 @@
-# 后端 API 基地址
-VITE_API_BASE_URL=http://localhost:8080
+# 后端 API 基地址 (单源架构: 相对路径, dev 经 Vite proxy 转发, prod 经反向代理同源).
+# 跨源部署时可改为 http(s):// 绝对地址, 并在后端启用 CORS.
+VITE_API_BASE_URL=/api/v1
 # 运行环境: development | staging | production
 VITE_APP_ENV=development
 # Sentry DSN (可选, 留空则不启用)

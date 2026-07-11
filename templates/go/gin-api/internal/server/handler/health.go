@@ -5,6 +5,7 @@ import (
 	"net/http"
 
 	"github.com/gin-gonic/gin"
+
 	"github.com/radishcoding/go-template/internal/server/response"
 	"github.com/radishcoding/go-template/internal/service/health"
 )

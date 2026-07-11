@@ -19,12 +19,18 @@ describe("AppError", () => {
 
 describe("isApiResponse", () => {
   it("识别包裹结构", () => {
-    expect(isApiResponse({ code: 0, message: "ok", data: null })).toBe(true)
+    expect(isApiResponse({ code: "ok", message: "success", data: null })).toBe(
+      true
+    )
   })
 
   it("拒绝非包裹结构", () => {
     expect(isApiResponse({ foo: 1 })).toBe(false)
     expect(isApiResponse(null)).toBe(false)
     expect(isApiResponse("x")).toBe(false)
+  })
+
+  it("拒绝 code 非字符串的旧式数字码结构", () => {
+    expect(isApiResponse({ code: 0, message: "ok", data: null })).toBe(false)
   })
 })

@@ -5,11 +5,12 @@ import (
 	"testing"
 	"time"
 
-	"github.com/radishcoding/go-template/internal/config"
 	"github.com/stretchr/testify/require"
 	"github.com/testcontainers/testcontainers-go"
 	tcpostgres "github.com/testcontainers/testcontainers-go/modules/postgres"
 	"github.com/testcontainers/testcontainers-go/wait"
+
+	"github.com/radishcoding/go-template/internal/config"
 )
 
 func TestNewPoolPings(t *testing.T) {

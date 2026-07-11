@@ -4,9 +4,10 @@ import (
 	"time"
 
 	"github.com/gin-gonic/gin"
-	"github.com/radishcoding/go-template/internal/server/requestid"
 	"go.opentelemetry.io/otel/trace"
 	"go.uber.org/zap"
+
+	"github.com/radishcoding/go-template/internal/server/requestid"
 )
 
 // AccessLog 输出结构化访问日志, 含 requestId 与 traceId 便于链路关联.

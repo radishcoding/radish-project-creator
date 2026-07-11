@@ -7,13 +7,14 @@ import (
 	"time"
 
 	"github.com/gin-gonic/gin"
-	"github.com/radishcoding/go-template/internal/config"
-	"github.com/radishcoding/go-template/internal/server/requestid"
 	"github.com/redis/go-redis/v9"
 	"github.com/stretchr/testify/require"
 	"github.com/testcontainers/testcontainers-go"
 	tcredis "github.com/testcontainers/testcontainers-go/modules/redis"
 	"go.uber.org/zap"
+
+	"github.com/radishcoding/go-template/internal/config"
+	"github.com/radishcoding/go-template/internal/server/requestid"
 )
 
 func TestRateLimitBlocksAfterBurst(t *testing.T) {
@@ -27,7 +28,7 @@ func TestRateLimitBlocksAfterBurst(t *testing.T) {
 	connStr, _ := ctr.ConnectionString(ctx)
 	opt, _ := redis.ParseURL(connStr)
 	rdb := redis.NewClient(opt)
-	defer rdb.Close()
+	defer func() { _ = rdb.Close() }() // 测试收尾, 关闭错误无需处理
 
 	gin.SetMode(gin.TestMode)
 	r := gin.New()
@@ -47,7 +48,7 @@ func TestRateLimitBlocksAfterBurst(t *testing.T) {
 // 无需 Docker: 指向一个无人监听的地址, 让 limiter.Allow 快速失败.
 func TestRateLimitFailsOpenWhenBackendDown(t *testing.T) {
 	rdb := redis.NewClient(&redis.Options{Addr: "127.0.0.1:1", DialTimeout: 200 * time.Millisecond, MaxRetries: -1})
-	defer rdb.Close()
+	defer func() { _ = rdb.Close() }() // 测试收尾, 关闭错误无需处理
 
 	gin.SetMode(gin.TestMode)
 	r := gin.New()

@@ -11,8 +11,8 @@ import { tokenStore } from "@/auth/token-store"
 import { env } from "@/config/env"
 import { createLogger } from "@/lib/logger"
 
-/** 后端约定的成功业务码. */
-const SUCCESS_CODES: ReadonlySet<number> = new Set([0, 200])
+/** 后端约定的成功业务码 (Go 端成功信封恒为 "ok", 见 response.Success/Created). */
+const SUCCESS_CODES: ReadonlySet<string> = new Set(["ok"])
 
 const logger = createLogger("http")
 

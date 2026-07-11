@@ -6,11 +6,12 @@ import (
 
 	"github.com/gin-gonic/gin"
 	"github.com/go-redis/redis_rate/v10"
+	"github.com/redis/go-redis/v9"
+	"go.uber.org/zap"
+
 	"github.com/radishcoding/go-template/internal/config"
 	"github.com/radishcoding/go-template/internal/server/response"
 	"github.com/radishcoding/go-template/pkg/apperror"
-	"github.com/redis/go-redis/v9"
-	"go.uber.org/zap"
 )
 
 // RateLimit 基于 Redis 做分布式限流, 按客户端 IP 计数; 超限返回 429 + Retry-After.

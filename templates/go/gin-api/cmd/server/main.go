@@ -24,7 +24,7 @@ func main() {
 		os.Exit(runHealthcheck())
 	}
 
-	cfg, err := config.Load(os.Getenv("APP_CONFIG_FILE"))
+	cfg, err := config.Load(resolveConfigPath())
 	if err != nil {
 		log.Fatalf("load config: %v", err)
 	}
@@ -42,18 +42,35 @@ func main() {
 
 // runHealthcheck 供容器 HEALTHCHECK 使用: 访问本地 /livez, 200 返回 0, 否则 1.
 func runHealthcheck() int {
-	cfg, err := config.Load(os.Getenv("APP_CONFIG_FILE"))
+	cfg, err := config.Load(resolveConfigPath())
 	if err != nil {
 		return 1
 	}
 	client := &http.Client{Timeout: 3 * time.Second}
-	resp, err := client.Get(fmt.Sprintf("http://127.0.0.1:%d/livez", cfg.App.Port))
+	req, err := http.NewRequestWithContext(context.Background(), http.MethodGet, fmt.Sprintf("http://127.0.0.1:%d/livez", cfg.App.Port), nil)
 	if err != nil {
 		return 1
 	}
-	defer resp.Body.Close()
+	resp, err := client.Do(req)
+	if err != nil {
+		return 1
+	}
+	defer func() { _ = resp.Body.Close() }() // 健康检查进程即将退出, 忽略关闭错误
 	if resp.StatusCode != http.StatusOK {
 		return 1
 	}
 	return 0
+}
+
+// resolveConfigPath 解析配置文件路径: 优先 APP_CONFIG_FILE 环境变量;
+// 未设时若默认路径 configs/config.yaml 存在则用之, 否则返回空 (仅用默认值 + 环境变量).
+func resolveConfigPath() string {
+	if path := os.Getenv("APP_CONFIG_FILE"); path != "" {
+		return path
+	}
+	const defaultPath = "configs/config.yaml"
+	if _, err := os.Stat(defaultPath); err == nil {
+		return defaultPath
+	}
+	return ""
 }

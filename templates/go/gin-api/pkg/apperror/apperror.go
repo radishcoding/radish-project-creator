@@ -7,8 +7,10 @@ import (
 	"net/http"
 )
 
+// Code 表示应用错误的字符串错误码.
 type Code string
 
+// 应用错误码常量.
 const (
 	CodeInvalidArgument Code = "invalid_argument"
 	CodeUnauthorized    Code = "unauthorized"
@@ -40,21 +42,32 @@ func newf(code Code, status int, msg string) *Error {
 	return &Error{Code: code, HTTPStatus: status, Message: msg}
 }
 
+// NewInvalidArgument 构造一个表示参数非法的 400 错误.
 func NewInvalidArgument(msg string) *Error {
 	return newf(CodeInvalidArgument, http.StatusBadRequest, msg)
 }
+
+// NewUnauthorized 构造一个表示未认证的 401 错误.
 func NewUnauthorized(msg string) *Error {
 	return newf(CodeUnauthorized, http.StatusUnauthorized, msg)
 }
+
+// NewForbidden 构造一个表示无权限的 403 错误.
 func NewForbidden(msg string) *Error {
 	return newf(CodeForbidden, http.StatusForbidden, msg)
 }
+
+// NewNotFound 构造一个表示资源不存在的 404 错误.
 func NewNotFound(msg string) *Error {
 	return newf(CodeNotFound, http.StatusNotFound, msg)
 }
+
+// NewTooManyRequests 构造一个表示请求过多的 429 错误.
 func NewTooManyRequests(msg string) *Error {
 	return newf(CodeTooManyRequests, http.StatusTooManyRequests, msg)
 }
+
+// NewUnavailable 构造一个表示服务不可用的 503 错误.
 func NewUnavailable(msg string) *Error {
 	return newf(CodeUnavailable, http.StatusServiceUnavailable, msg)
 }

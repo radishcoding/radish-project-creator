@@ -5,6 +5,7 @@ import (
 	"net/http"
 
 	"github.com/gin-gonic/gin"
+
 	"github.com/radishcoding/go-template/internal/server/requestid"
 	"github.com/radishcoding/go-template/pkg/apperror"
 )

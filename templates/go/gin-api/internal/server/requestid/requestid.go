@@ -8,6 +8,7 @@ import (
 	"github.com/google/uuid"
 )
 
+// HeaderXRequestID 是承载请求 ID 的 HTTP 头名称.
 const HeaderXRequestID = "X-Request-ID"
 
 type ctxKey struct{}

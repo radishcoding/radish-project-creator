@@ -5,10 +5,11 @@ import (
 	"runtime/debug"
 
 	"github.com/gin-gonic/gin"
+	"go.uber.org/zap"
+
 	"github.com/radishcoding/go-template/internal/server/requestid"
 	"github.com/radishcoding/go-template/internal/server/response"
 	"github.com/radishcoding/go-template/pkg/apperror"
-	"go.uber.org/zap"
 )
 
 // Recovery 捕获下游 panic, 记录堆栈并返回统一 500 信封.

@@ -4,6 +4,7 @@ import (
 	"strings"
 
 	"github.com/gin-gonic/gin"
+
 	"github.com/radishcoding/go-template/internal/platform/auth"
 	"github.com/radishcoding/go-template/internal/server/response"
 	"github.com/radishcoding/go-template/pkg/apperror"

@@ -3,5 +3,11 @@
   "description": "生产级 Go + Gin REST API: sqlc, pgx, Redis, JWT, OTel, Swagger, Docker",
   "emoji": "🐹",
   "tags": ["go", "gin", "api", "rest", "postgres"],
-  "replacements": ["github.com/radishcoding/go-template", "go-template"]
+  "replacements": ["github.com/radishcoding/go-template", "go-template"],
+  "postGenerate": [
+    {
+      "command": ["gofmt", "-w", "."],
+      "description": "格式化 Go 代码 (整理替换模块路径后的 import 顺序)"
+    }
+  ]
 }

@@ -3,8 +3,9 @@ package logger
 import (
 	"testing"
 
-	"github.com/radishcoding/go-template/internal/config"
 	"github.com/stretchr/testify/require"
+
+	"github.com/radishcoding/go-template/internal/config"
 )
 
 func TestNewJSON(t *testing.T) {

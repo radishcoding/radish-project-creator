@@ -5,9 +5,10 @@ import (
 	"fmt"
 	"os"
 
-	"github.com/radishcoding/go-template/internal/config"
 	"go.uber.org/zap"
 	"go.uber.org/zap/zapcore"
+
+	"github.com/radishcoding/go-template/internal/config"
 )
 
 // New 依据配置构造 *zap.Logger. format 支持 "json" 与 "console".

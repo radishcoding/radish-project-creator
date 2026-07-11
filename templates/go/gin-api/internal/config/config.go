@@ -9,6 +9,7 @@ import (
 	"github.com/spf13/viper"
 )
 
+// Config 保存应用的全部配置, 按功能分组聚合各子配置.
 type Config struct {
 	App       App       `mapstructure:"app"`
 	Server    Server    `mapstructure:"server"`
@@ -20,6 +21,7 @@ type Config struct {
 	OTel      OTel      `mapstructure:"otel"`
 }
 
+// App 保存应用自身的基础配置, 如名称, 环境, 端口与 API 前缀.
 type App struct {
 	Name      string `mapstructure:"name"`
 	Env       string `mapstructure:"env"`
@@ -27,6 +29,7 @@ type App struct {
 	APIPrefix string `mapstructure:"api_prefix"`
 }
 
+// Server 保存 HTTP 服务器的超时, 请求体上限与 CORS 源等配置.
 type Server struct {
 	ReadTimeout     time.Duration `mapstructure:"read_timeout"`
 	WriteTimeout    time.Duration `mapstructure:"write_timeout"`
@@ -36,11 +39,13 @@ type Server struct {
 	CORSOrigins     []string      `mapstructure:"cors_origins"`
 }
 
+// Log 保存日志的级别与输出格式配置.
 type Log struct {
 	Level  string `mapstructure:"level"`
 	Format string `mapstructure:"format"` // json | console
 }
 
+// Postgres 保存 PostgreSQL 数据库的连接与连接池配置.
 type Postgres struct {
 	Host     string `mapstructure:"host"`
 	Port     int    `mapstructure:"port"`
@@ -51,11 +56,13 @@ type Postgres struct {
 	PoolSize int32  `mapstructure:"pool_size"`
 }
 
+// DSN 根据配置拼接并返回 PostgreSQL 的连接字符串.
 func (p Postgres) DSN() string {
 	return fmt.Sprintf("postgres://%s:%s@%s:%d/%s?sslmode=%s",
 		p.User, p.Password, p.Host, p.Port, p.DB, p.SSLMode)
 }
 
+// Redis 保存 Redis 的地址, 密码, 库编号与连接池配置.
 type Redis struct {
 	Addr     string `mapstructure:"addr"`
 	Password string `mapstructure:"password"`
@@ -63,17 +70,20 @@ type Redis struct {
 	PoolSize int    `mapstructure:"pool_size"`
 }
 
+// Auth 保存 JWT 鉴权的密钥, 签发者与有效期配置.
 type Auth struct {
 	JWTSecret string        `mapstructure:"jwt_secret"`
 	Issuer    string        `mapstructure:"issuer"`
 	TTL       time.Duration `mapstructure:"ttl"`
 }
 
+// RateLimit 保存限流的每秒请求数与突发容量配置.
 type RateLimit struct {
 	RPS   int `mapstructure:"rps"`
 	Burst int `mapstructure:"burst"`
 }
 
+// OTel 保存 OpenTelemetry 的开关, 上报端点与服务标识配置.
 type OTel struct {
 	Enabled        bool   `mapstructure:"enabled"`
 	Endpoint       string `mapstructure:"endpoint"`
@@ -119,7 +129,8 @@ func setDefaults(v *viper.Viper) {
 	v.SetDefault("server.shutdown_timeout", "10s")
 	v.SetDefault("server.body_limit_bytes", 1<<20) // 1 MiB
 	v.SetDefault("server.request_timeout", "30s")
-	v.SetDefault("server.cors_origins", []string{"*"})
+	// 默认空: 单源部署无需 CORS. 跨源部署时显式配置具体源 (勿用 "*" 配凭据).
+	v.SetDefault("server.cors_origins", []string{})
 
 	v.SetDefault("log.level", "info")
 	v.SetDefault("log.format", "json")

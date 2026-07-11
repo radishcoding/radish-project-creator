@@ -9,7 +9,8 @@ server:
   shutdown_timeout: 10s
   body_limit_bytes: 1048576
   request_timeout: 30s
-  cors_origins: ["*"]
+  # 单源部署留空 (无需 CORS); 跨源部署时填具体源, 如 ["https://app.example.com"].
+  cors_origins: []
 log:
   level: info
   format: json

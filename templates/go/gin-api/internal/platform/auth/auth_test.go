@@ -5,8 +5,9 @@ import (
 	"time"
 
 	"github.com/golang-jwt/jwt/v5"
-	"github.com/radishcoding/go-template/internal/config"
 	"github.com/stretchr/testify/require"
+
+	"github.com/radishcoding/go-template/internal/config"
 )
 
 func mgr() *Manager {

@@ -7,8 +7,9 @@ import (
 	"fmt"
 	"time"
 
-	"github.com/radishcoding/go-template/internal/config"
 	"github.com/redis/go-redis/v9"
+
+	"github.com/radishcoding/go-template/internal/config"
 )
 
 // ErrCacheMiss 表示键不存在.

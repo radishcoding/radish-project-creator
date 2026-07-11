@@ -15,6 +15,13 @@ export default defineConfig({
       "@": path.resolve(__dirname, "./src"),
     },
   },
+  server: {
+    // 单源开发: 把 /api/v1 转发到 Go 后端, 浏览器视角同源, 无 CORS.
+    // 不 rewrite: 后端业务路由本就挂在 /api/v1 前缀下. 仅 vite dev 生效.
+    proxy: {
+      "/api/v1": { target: "http://localhost:8000", changeOrigin: true },
+    },
+  },
   build: {
     rollupOptions: {
       output: {
@@ -58,7 +65,8 @@ export default defineConfig({
     environment: "jsdom",
     setupFiles: ["./src/test/setup.ts"],
     css: true,
-    exclude: [...configDefaults.exclude, "e2e/**"],
+    // 集成契约测试需真实 server, 排除出默认单测; 用 `npm run test:integration` 单独跑.
+    exclude: [...configDefaults.exclude, "e2e/**", "src/integration/**"],
     coverage: {
       provider: "v8",
       reporter: ["text", "html"],

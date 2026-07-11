@@ -3,6 +3,12 @@ package server
 
 import (
 	"github.com/gin-gonic/gin"
+	"github.com/redis/go-redis/v9"
+	swaggerFiles "github.com/swaggo/files"
+	ginSwagger "github.com/swaggo/gin-swagger"
+	"go.opentelemetry.io/contrib/instrumentation/github.com/gin-gonic/gin/otelgin"
+	"go.uber.org/zap"
+
 	"github.com/radishcoding/go-template/internal/config"
 	"github.com/radishcoding/go-template/internal/platform/auth"
 	"github.com/radishcoding/go-template/internal/server/handler"
@@ -11,11 +17,6 @@ import (
 	"github.com/radishcoding/go-template/internal/server/response"
 	"github.com/radishcoding/go-template/internal/service/health"
 	"github.com/radishcoding/go-template/pkg/apperror"
-	"github.com/redis/go-redis/v9"
-	swaggerFiles "github.com/swaggo/files"
-	ginSwagger "github.com/swaggo/gin-swagger"
-	"go.opentelemetry.io/contrib/instrumentation/github.com/gin-gonic/gin/otelgin"
-	"go.uber.org/zap"
 )
 
 // Deps 汇总构建路由所需的全部依赖.
@@ -38,7 +39,10 @@ func New(d Deps) *gin.Engine {
 	r.Use(otelgin.Middleware(d.Cfg.App.Name))
 	r.Use(middleware.AccessLog(d.Logger))
 	r.Use(middleware.Secure())
-	r.Use(middleware.CORS(d.Cfg.Server.CORSOrigins))
+	// 单源部署 (前端经反向代理/同源) 无需 CORS; 仅当显式配置了白名单 (跨源部署) 才挂载.
+	if len(d.Cfg.Server.CORSOrigins) > 0 {
+		r.Use(middleware.CORS(d.Cfg.Server.CORSOrigins))
+	}
 	r.Use(middleware.BodyLimit(d.Cfg.Server.BodyLimitBytes))
 	r.Use(middleware.Timeout(d.Cfg.Server.RequestTimeout))
 

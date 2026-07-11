@@ -1,7 +1,15 @@
 import { z } from "zod"
 
 const envSchema = z.object({
-  VITE_API_BASE_URL: z.url().default("http://localhost:8080"),
+  // baseURL 全环境统一为相对路径, 走单源架构 (dev 经 Vite proxy, prod 经反向代理);
+  // 允许以 / 开头的相对路径, 或用于跨源部署的 http(s):// 绝对地址.
+  VITE_API_BASE_URL: z
+    .string()
+    .default("/api/v1")
+    .refine(
+      (value) => value.startsWith("/") || /^https?:\/\//.test(value),
+      "必须是以 / 开头的相对路径或 http(s):// 绝对地址"
+    ),
   VITE_APP_ENV: z
     .enum(["development", "staging", "production"])
     .default("development"),

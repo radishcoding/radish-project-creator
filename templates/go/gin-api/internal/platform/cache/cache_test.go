@@ -5,11 +5,12 @@ import (
 	"testing"
 	"time"
 
-	"github.com/radishcoding/go-template/internal/config"
 	"github.com/redis/go-redis/v9"
 	"github.com/stretchr/testify/require"
 	"github.com/testcontainers/testcontainers-go"
 	tcredis "github.com/testcontainers/testcontainers-go/modules/redis"
+
+	"github.com/radishcoding/go-template/internal/config"
 )
 
 func TestCacheSetGetDel(t *testing.T) {
@@ -28,7 +29,8 @@ func TestCacheSetGetDel(t *testing.T) {
 
 	client, err := NewClient(config.Redis{Addr: opt.Addr, DB: opt.DB, PoolSize: 5})
 	require.NoError(t, err)
-	defer client.Close()
+	// 测试结束时关闭客户端, 关闭错误无需处理.
+	defer func() { _ = client.Close() }()
 
 	c := New(client)
 	require.NoError(t, c.Set(ctx, "k", "v", time.Minute))

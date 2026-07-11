@@ -4,6 +4,14 @@ export type PackageManager = "npm" | "pnpm" | "yarn" | "bun";
 /** 目标目录存在冲突时的处理方式. */
 export type DirConflictAction = "overwrite" | "rename" | "cancel";
 
+/** 生成后在项目目录内执行的收尾命令 (尽力而为: 失败仅告警, 不影响已生成的项目). */
+export interface PostGenerateTask {
+  /** 命令与参数的 argv 数组, 直接执行不经 shell (免转义与注入), 如 ["gofmt", "-w", "."]. */
+  command: string[];
+  /** 该命令用途的简短描述, 用于进度/告警提示; 可选. */
+  description?: string;
+}
+
 /** 模板的元数据描述. */
 export interface TemplateMeta {
   /** 模板显示名称. */
@@ -16,6 +24,8 @@ export interface TemplateMeta {
   tags?: string[];
   /** 生成时需在所有文本文件中替换为项目名的字符串列表, 按数组顺序应用 (应先列长串再列短串, 避免长串被短串破坏). */
   replacements?: string[];
+  /** 生成后按序执行的收尾命令 (如格式化); 于项目目录内运行, 尽力而为. 仅对可信模板生效, 命令以当前用户权限执行. */
+  postGenerate?: PostGenerateTask[];
 }
 
 /** 单个项目模板的完整描述. */

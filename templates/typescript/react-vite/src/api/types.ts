@@ -1,8 +1,10 @@
-/** 后端统一响应包裹. */
+/** 后端统一响应包裹, 与 Go 端 response.Envelope 对齐 (code 为语义字符串, 成功恒为 "ok"). */
 export interface ApiResponse<T> {
-  code: number
+  code: string
   message: string
   data: T
+  /** 链路追踪 ID, 由后端注入 (对应 Envelope.requestId). */
+  requestId?: string
 }
 
 /** 分页数据结构. */
@@ -47,14 +49,16 @@ export class AppError extends Error {
 /**
  * 判断值是否符合 ApiResponse 形状.
  * @param value 待判断的值.
- * @returns 具备 code/message/data 三字段返回 true.
+ * @returns code 与 message 均为字符串且含 data 字段时返回 true.
  */
 export function isApiResponse(value: unknown): value is ApiResponse<unknown> {
+  if (typeof value !== "object" || value === null) {
+    return false
+  }
+  const record = value as Record<string, unknown>
   return (
-    typeof value === "object" &&
-    value !== null &&
-    "code" in value &&
-    "message" in value &&
-    "data" in value
+    typeof record.code === "string" &&
+    typeof record.message === "string" &&
+    "data" in record
   )
 }

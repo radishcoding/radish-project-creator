@@ -111,6 +111,7 @@ export async function runCli(argv: string[]): Promise<void> {
       onProgress: () => {
         // 进度细节由生成阶段的 spinner 呈现
       },
+      onWarn: (message) => console.warn(c.yellow(`${emoji.wave} ${message}`)),
       install: (context) =>
         withSpinner(
           `用 ${context.packageManager} 安装依赖`,

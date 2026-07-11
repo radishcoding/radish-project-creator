@@ -7,10 +7,11 @@ import (
 	"time"
 
 	"github.com/gin-gonic/gin"
+	"github.com/stretchr/testify/require"
+
 	"github.com/radishcoding/go-template/internal/config"
 	"github.com/radishcoding/go-template/internal/platform/auth"
 	"github.com/radishcoding/go-template/internal/server/requestid"
-	"github.com/stretchr/testify/require"
 )
 
 func TestAuthRejectsMissingToken(t *testing.T) {

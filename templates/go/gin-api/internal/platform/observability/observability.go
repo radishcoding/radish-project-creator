@@ -5,7 +5,6 @@ import (
 	"context"
 	"errors"
 
-	"github.com/radishcoding/go-template/internal/config"
 	"go.opentelemetry.io/contrib/instrumentation/runtime"
 	"go.opentelemetry.io/otel"
 	"go.opentelemetry.io/otel/exporters/otlp/otlpmetric/otlpmetricgrpc"
@@ -15,6 +14,8 @@ import (
 	"go.opentelemetry.io/otel/sdk/resource"
 	sdktrace "go.opentelemetry.io/otel/sdk/trace"
 	semconv "go.opentelemetry.io/otel/semconv/v1.26.0"
+
+	"github.com/radishcoding/go-template/internal/config"
 )
 
 // Init 注册全局 TracerProvider/MeterProvider 与 propagator, 返回聚合关闭函数.
