@@ -19,6 +19,8 @@ func Recovery(log *zap.Logger) gin.HandlerFunc {
 			if r := recover(); r != nil {
 				log.Error("panic recovered",
 					zap.Any("panic", r),
+					zap.String("method", c.Request.Method),
+					zap.String("path", c.Request.URL.Path),
 					zap.String("requestId", requestid.Get(c.Request.Context())),
 					zap.ByteString("stack", debug.Stack()),
 				)

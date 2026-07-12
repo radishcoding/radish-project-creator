@@ -1,5 +1,7 @@
 import * as React from "react"
 
+import { THEME_STORAGE_KEY } from "@/config/constants"
+
 import { type Theme, ThemeProviderContext } from "./theme-context"
 
 type ResolvedTheme = "dark" | "light"
@@ -89,7 +91,7 @@ function isEditableTarget(target: EventTarget | null) {
 export function ThemeProvider({
   children,
   defaultTheme = "system",
-  storageKey = "theme",
+  storageKey = THEME_STORAGE_KEY,
   disableTransitionOnChange = true,
 }: ThemeProviderProps) {
   const [theme, setThemeState] = React.useState<Theme>(

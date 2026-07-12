@@ -18,6 +18,17 @@ const logger = createLogger("http")
 
 type RetriableConfig = InternalAxiosRequestConfig & { _retry?: boolean }
 
+/**
+ * 生成请求关联 id. 优先 crypto.randomUUID (需安全上下文); 非安全上下文 (纯 HTTP 非 localhost)
+ * 下退化为基于时间戳与随机数的关联 id (仅用于日志关联, 无需密码学强度).
+ */
+function makeRequestId(): string {
+  if (typeof crypto !== "undefined" && typeof crypto.randomUUID === "function") {
+    return crypto.randomUUID()
+  }
+  return `${Date.now().toString(16)}-${Math.random().toString(16).slice(2, 10)}`
+}
+
 function statusToCode(status: number | undefined): ErrorCode {
   switch (status) {
     case 401:
@@ -78,7 +89,8 @@ export function attachInterceptors(instance: AxiosInstance): void {
     if (token !== undefined) {
       config.headers.set("Authorization", `Bearer ${token}`)
     }
-    config.headers.set("X-Trace-Id", crypto.randomUUID())
+    // 与后端 requestid 中间件对齐 (同名 X-Request-ID): 后端透传该 id 至 context/响应头/日志, 打通链路.
+    config.headers.set("X-Request-ID", makeRequestId())
     return config
   })
 

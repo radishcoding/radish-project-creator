@@ -125,7 +125,7 @@ curl http://localhost:8000/readyz    # 就绪: 探 postgres + redis, 全就绪 2
 
 全局顺序 (外→内): `request_id → recovery → otel → accesslog → secure → cors → bodylimit → timeout → ratelimit`.
 
-- **限流**: 基于 Redis (redis_rate) 按客户端 IP 计数, 超限返回 429 + `Retry-After`; **Redis 不可用时 fail-open** (记告警并放行, 避免拖垮全站). 健康探针不受限流.
+- **限流**: 基于 Redis (redis_rate) 按客户端 IP 计数, 超限返回 429 + `Retry-After`; **Redis 不可用时 fail-open** (记告警并放行, 避免拖垮全站). 健康探针不受限流. 客户端 IP 经 `server.trusted_proxies` 判定是否采信 `X-Forwarded-For`: 默认信任无代理 (取直连地址); 部署在反代 (如 Caddy) 后须填代理网段, 否则 IP 可被伪造以绕过限流.
 - **认证**: `middleware.Auth` 是可复用的 JWT 验签组件 (校验签名/过期/issuer), 默认不挂载; 挂载示例见 `internal/server/router.go` 注释.
 
 ## 配置

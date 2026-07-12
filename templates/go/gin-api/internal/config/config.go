@@ -3,6 +3,9 @@ package config
 
 import (
 	"fmt"
+	"net"
+	"net/url"
+	"strconv"
 	"strings"
 	"time"
 
@@ -31,12 +34,15 @@ type App struct {
 
 // Server 保存 HTTP 服务器的超时, 请求体上限与 CORS 源等配置.
 type Server struct {
-	ReadTimeout     time.Duration `mapstructure:"read_timeout"`
-	WriteTimeout    time.Duration `mapstructure:"write_timeout"`
-	ShutdownTimeout time.Duration `mapstructure:"shutdown_timeout"`
-	BodyLimitBytes  int64         `mapstructure:"body_limit_bytes"`
-	RequestTimeout  time.Duration `mapstructure:"request_timeout"`
-	CORSOrigins     []string      `mapstructure:"cors_origins"`
+	ReadTimeout       time.Duration `mapstructure:"read_timeout"`
+	ReadHeaderTimeout time.Duration `mapstructure:"read_header_timeout"`
+	WriteTimeout      time.Duration `mapstructure:"write_timeout"`
+	IdleTimeout       time.Duration `mapstructure:"idle_timeout"`
+	ShutdownTimeout   time.Duration `mapstructure:"shutdown_timeout"`
+	BodyLimitBytes    int64         `mapstructure:"body_limit_bytes"`
+	RequestTimeout    time.Duration `mapstructure:"request_timeout"`
+	CORSOrigins       []string      `mapstructure:"cors_origins"`
+	TrustedProxies    []string      `mapstructure:"trusted_proxies"`
 }
 
 // Log 保存日志的级别与输出格式配置.
@@ -57,9 +63,16 @@ type Postgres struct {
 }
 
 // DSN 根据配置拼接并返回 PostgreSQL 的连接字符串.
+// 用 net/url 构造以正确转义用户名/密码中的 URL 保留字符 (如 @ : / ?), pgx 解析时会反解.
 func (p Postgres) DSN() string {
-	return fmt.Sprintf("postgres://%s:%s@%s:%d/%s?sslmode=%s",
-		p.User, p.Password, p.Host, p.Port, p.DB, p.SSLMode)
+	dsn := url.URL{
+		Scheme:   "postgres",
+		User:     url.UserPassword(p.User, p.Password),
+		Host:     net.JoinHostPort(p.Host, strconv.Itoa(p.Port)),
+		Path:     p.DB,
+		RawQuery: url.Values{"sslmode": {p.SSLMode}}.Encode(),
+	}
+	return dsn.String()
 }
 
 // Redis 保存 Redis 的地址, 密码, 库编号与连接池配置.
@@ -125,12 +138,17 @@ func setDefaults(v *viper.Viper) {
 	v.SetDefault("app.api_prefix", "/api/v1")
 
 	v.SetDefault("server.read_timeout", "15s")
-	v.SetDefault("server.write_timeout", "15s")
+	v.SetDefault("server.read_header_timeout", "10s")
+	v.SetDefault("server.write_timeout", "60s")
+	v.SetDefault("server.idle_timeout", "60s")
 	v.SetDefault("server.shutdown_timeout", "10s")
 	v.SetDefault("server.body_limit_bytes", 1<<20) // 1 MiB
 	v.SetDefault("server.request_timeout", "30s")
 	// 默认空: 单源部署无需 CORS. 跨源部署时显式配置具体源 (勿用 "*" 配凭据).
 	v.SetDefault("server.cors_origins", []string{})
+	// 默认信任无代理: ClientIP 取直连地址, 限流/日志按真实来源. 部署在反代 (如 Caddy) 后须填代理
+	// 网段 (如 ["10.0.0.0/8"]), 否则 X-Forwarded-For 可被伪造以绕过按 IP 的限流.
+	v.SetDefault("server.trusted_proxies", []string{})
 
 	v.SetDefault("log.level", "info")
 	v.SetDefault("log.format", "json")
@@ -163,6 +181,10 @@ func setDefaults(v *viper.Viper) {
 func (c *Config) validate() error {
 	if c.App.Port <= 0 || c.App.Port > 65535 {
 		return fmt.Errorf("invalid app.port: %d", c.App.Port)
+	}
+	// write_timeout 必须大于 request_timeout, 否则超时中间件的 503 信封会因 server 写截止先到而发不出.
+	if c.Server.WriteTimeout > 0 && c.Server.WriteTimeout <= c.Server.RequestTimeout {
+		return fmt.Errorf("server.write_timeout (%s) must exceed server.request_timeout (%s)", c.Server.WriteTimeout, c.Server.RequestTimeout)
 	}
 	if c.App.Env == "production" && c.Auth.JWTSecret == "change-me-in-production" {
 		return fmt.Errorf("auth.jwt_secret must be set in production")

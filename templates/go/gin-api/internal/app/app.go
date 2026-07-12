@@ -42,10 +42,12 @@ func (a *App) Run(ctx context.Context) error {
 	defer stop()
 
 	a.server = &http.Server{
-		Addr:         addr(a.cfg.App.Port),
-		Handler:      a.engine,
-		ReadTimeout:  a.cfg.Server.ReadTimeout,
-		WriteTimeout: a.cfg.Server.WriteTimeout,
+		Addr:              addr(a.cfg.App.Port),
+		Handler:           a.engine,
+		ReadTimeout:       a.cfg.Server.ReadTimeout,
+		ReadHeaderTimeout: a.cfg.Server.ReadHeaderTimeout,
+		WriteTimeout:      a.cfg.Server.WriteTimeout,
+		IdleTimeout:       a.cfg.Server.IdleTimeout,
 	}
 
 	errCh := make(chan error, 1)

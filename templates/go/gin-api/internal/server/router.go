@@ -33,6 +33,13 @@ func New(d Deps) *gin.Engine {
 	gin.SetMode(gin.ReleaseMode)
 	r := gin.New()
 
+	// 限定可信代理: 决定 ClientIP() 是否采信 X-Forwarded-For. 默认空=信任无代理 (取直连地址),
+	// 避免伪造 XFF 绕过限流; 配置含非法 CIDR 时回退为信任无代理并告警.
+	if err := r.SetTrustedProxies(d.Cfg.Server.TrustedProxies); err != nil {
+		d.Logger.Warn("invalid server.trusted_proxies, trusting none", zap.Error(err))
+		_ = r.SetTrustedProxies(nil)
+	}
+
 	// 全局中间件链 (外→内).
 	r.Use(requestid.Middleware())
 	r.Use(middleware.Recovery(d.Logger))

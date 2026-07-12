@@ -5,12 +5,17 @@ app:
   api_prefix: /api/v1
 server:
   read_timeout: 15s
-  write_timeout: 15s
+  read_header_timeout: 10s
+  write_timeout: 60s
+  idle_timeout: 60s
   shutdown_timeout: 10s
   body_limit_bytes: 1048576
   request_timeout: 30s
   # 单源部署留空 (无需 CORS); 跨源部署时填具体源, 如 ["https://app.example.com"].
   cors_origins: []
+  # 反代/负载均衡所在网段 (CIDR 或 IP); 留空=信任无代理, ClientIP 取直连地址.
+  # 部署在 Caddy 等反代后须填 (如 ["10.0.0.0/8"]), 否则 X-Forwarded-For 可伪造绕过限流.
+  trusted_proxies: []
 log:
   level: info
   format: json

@@ -312,7 +312,7 @@ log.info("已下单", orderId)
 
 | 变量                | 说明                                         | 默认值                  |
 | ------------------- | -------------------------------------------- | ----------------------- |
-| `VITE_API_BASE_URL` | 后端 API 基地址 (需合法 URL)                 | `http://localhost:8080` |
+| `VITE_API_BASE_URL` | 后端 API 基地址 (相对路径或绝对 URL)         | `/api/v1`               |
 | `VITE_APP_ENV`      | 运行环境: development / staging / production | `development`           |
 | `VITE_SENTRY_DSN`   | Sentry DSN (可选, 留空则不启用)              | (空)                    |
 | `VITE_ENABLE_MSW`   | 是否启用开发态 MSW mock: true / false        | `false`                 |
