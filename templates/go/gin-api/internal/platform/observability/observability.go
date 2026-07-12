@@ -25,11 +25,7 @@ func Init(ctx context.Context, cfg config.OTel) (func(context.Context) error, er
 		return func(context.Context) error { return nil }, nil
 	}
 
-	res, err := resource.Merge(resource.Default(), resource.NewWithAttributes(
-		semconv.SchemaURL,
-		semconv.ServiceName(cfg.ServiceName),
-		semconv.ServiceVersion(cfg.ServiceVersion),
-	))
+	res, err := newResource(cfg)
 	if err != nil {
 		return nil, err
 	}
@@ -70,4 +66,13 @@ func Init(ctx context.Context, cfg config.OTel) (func(context.Context) error, er
 	}
 
 	return shutdown, nil
+}
+
+// newResource 构造服务标识资源. 自建属性用 NewSchemaless (不带 schema URL), 避免与
+// resource.Default() 内置 semconv 版本的 schema URL 不一致导致 Merge 返回 ErrSchemaURLConflict.
+func newResource(cfg config.OTel) (*resource.Resource, error) {
+	return resource.Merge(resource.Default(), resource.NewSchemaless(
+		semconv.ServiceName(cfg.ServiceName),
+		semconv.ServiceVersion(cfg.ServiceVersion),
+	))
 }

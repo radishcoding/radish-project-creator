@@ -1,6 +1,6 @@
 {
   "name": "radish-project-creator",
-  "version": "1.1.1",
+  "version": "1.1.2",
   "description": "一个基于 Node.js 与 TypeScript 的交互式 CLI 脚手架, 通过多级菜单选择编程语言与项目类型, 一键生成标准化的项目模板.",
   "type": "module",
   "main": "dist/index.js",

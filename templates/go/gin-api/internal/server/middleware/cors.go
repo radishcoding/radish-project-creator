@@ -12,7 +12,7 @@ func CORS(origins []string) gin.HandlerFunc {
 	cfg := cors.Config{
 		AllowMethods:  []string{"GET", "POST", "PUT", "PATCH", "DELETE", "OPTIONS"},
 		AllowHeaders:  []string{"Origin", "Content-Type", "Authorization", "X-Request-ID"},
-		ExposeHeaders: []string{"X-Request-ID"},
+		ExposeHeaders: []string{"X-Request-ID", "Retry-After"},
 		MaxAge:        12 * time.Hour,
 	}
 	if len(origins) == 1 && origins[0] == "*" {

@@ -58,16 +58,22 @@ func (a *App) Run(ctx context.Context) error {
 		}
 	}()
 
+	var runErr error
 	select {
 	case err := <-errCh:
-		return fmt.Errorf("server error: %w", err)
+		runErr = fmt.Errorf("server error: %w", err)
 	case <-ctx.Done():
 		a.logger.Info("shutdown signal received")
 	}
 
+	// 无论正常收到信号还是启动失败, 都执行资源清理, 与信号关闭路径对称.
 	shutdownCtx, cancel := context.WithTimeout(context.Background(), a.cfg.Server.ShutdownTimeout)
 	defer cancel()
-	return a.Close(shutdownCtx)
+	closeErr := a.Close(shutdownCtx)
+	if runErr != nil {
+		return runErr
+	}
+	return closeErr
 }
 
 // Close 依序关闭 HTTP 服务与各资源.
